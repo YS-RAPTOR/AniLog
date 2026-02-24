@@ -3,6 +3,7 @@ import { cva, type VariantProps } from "class-variance-authority";
 
 import { cn } from "@/lib/utils";
 
+/*
 const buttonVariants = cva(
     "focus-visible:border-ring focus-visible:ring-ring/50 aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive dark:aria-invalid:border-destructive/50 rounded-md border border-transparent bg-clip-padding text-sm font-medium focus-visible:ring-3 aria-invalid:ring-3 [&_svg:not([class*='size-'])]:size-4 inline-flex items-center justify-center whitespace-nowrap transition-all disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none shrink-0 [&_svg]:shrink-0 outline-none group/button select-none",
     {
@@ -39,11 +40,46 @@ const buttonVariants = cva(
         },
     },
 );
+*/
+
+const buttonVariants = cva(
+    "inline-flex cursor-pointer shrink-0 items-center justify-center whitespace-nowrap border border-transparent text-sm font-black uppercase tracking-[0.14em] transition-all outline-none select-none disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-3",
+    {
+        variants: {
+            variant: {
+                primary:
+                    "border-foreground bg-foreground text-background hover:-translate-y-0.5 hover:shadow-[6px_6px_0px_0px_var(--color-foreground)]",
+                secondary:
+                    "border-2 border-foreground/40 bg-background text-foreground hover:border-foreground hover:bg-foreground hover:text-background",
+                outline:
+                    "border-2 border-foreground bg-background text-foreground hover:bg-foreground hover:text-background",
+                ghost: "text-foreground hover:bg-foreground/10",
+                destructive:
+                    "border-destructive bg-destructive text-white hover:bg-destructive/90",
+                link: "text-foreground underline underline-offset-4 hover:text-muted-foreground",
+                utility:
+                    "bg-background text-foreground hover:bg-foreground hover:text-background rounded-none border-4 border-foreground focus-visible:border-foreground focus-visible:ring-0",
+            },
+            size: {
+                sm: "h-8 gap-1 px-2.5 text-xs",
+                md: "h-10 gap-2 px-4",
+                lg: "h-12 gap-2 px-6 text-sm",
+                "icon-sm": "size-7 p-0",
+                "icon-md": "size-10 p-0",
+                "fit-square": "h-full aspect-square",
+            },
+        },
+        defaultVariants: {
+            variant: "primary",
+            size: "md",
+        },
+    },
+);
 
 function Button({
     className,
-    variant = "default",
-    size = "default",
+    variant = "primary",
+    size = "md",
     ...props
 }: ButtonPrimitive.Props & VariantProps<typeof buttonVariants>) {
     return (

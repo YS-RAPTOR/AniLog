@@ -9,27 +9,236 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as OnboardingRouteRouteImport } from './routes/onboarding/route'
+import { Route as AppRouteRouteImport } from './routes/_app/route'
+import { Route as OnboardingIndexRouteImport } from './routes/onboarding/index'
+import { Route as AppIndexRouteImport } from './routes/_app/index'
+import { Route as OnboardingImportRouteImport } from './routes/onboarding/import'
+import { Route as OnboardingBeginnerRouteImport } from './routes/onboarding/beginner'
+import { Route as OnboardingAdvancedRouteImport } from './routes/onboarding/advanced'
+import { Route as LoginMalRouteImport } from './routes/login/mal'
+import { Route as LoginGoogleRouteImport } from './routes/login/google'
 
-export interface FileRoutesByFullPath {}
-export interface FileRoutesByTo {}
+const OnboardingRouteRoute = OnboardingRouteRouteImport.update({
+  id: '/onboarding',
+  path: '/onboarding',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AppRouteRoute = AppRouteRouteImport.update({
+  id: '/_app',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const OnboardingIndexRoute = OnboardingIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => OnboardingRouteRoute,
+} as any)
+const AppIndexRoute = AppIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => AppRouteRoute,
+} as any)
+const OnboardingImportRoute = OnboardingImportRouteImport.update({
+  id: '/import',
+  path: '/import',
+  getParentRoute: () => OnboardingRouteRoute,
+} as any)
+const OnboardingBeginnerRoute = OnboardingBeginnerRouteImport.update({
+  id: '/beginner',
+  path: '/beginner',
+  getParentRoute: () => OnboardingRouteRoute,
+} as any)
+const OnboardingAdvancedRoute = OnboardingAdvancedRouteImport.update({
+  id: '/advanced',
+  path: '/advanced',
+  getParentRoute: () => OnboardingRouteRoute,
+} as any)
+const LoginMalRoute = LoginMalRouteImport.update({
+  id: '/login/mal',
+  path: '/login/mal',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LoginGoogleRoute = LoginGoogleRouteImport.update({
+  id: '/login/google',
+  path: '/login/google',
+  getParentRoute: () => rootRouteImport,
+} as any)
+
+export interface FileRoutesByFullPath {
+  '/': typeof AppIndexRoute
+  '/onboarding': typeof OnboardingRouteRouteWithChildren
+  '/login/google': typeof LoginGoogleRoute
+  '/login/mal': typeof LoginMalRoute
+  '/onboarding/advanced': typeof OnboardingAdvancedRoute
+  '/onboarding/beginner': typeof OnboardingBeginnerRoute
+  '/onboarding/import': typeof OnboardingImportRoute
+  '/onboarding/': typeof OnboardingIndexRoute
+}
+export interface FileRoutesByTo {
+  '/login/google': typeof LoginGoogleRoute
+  '/login/mal': typeof LoginMalRoute
+  '/onboarding/advanced': typeof OnboardingAdvancedRoute
+  '/onboarding/beginner': typeof OnboardingBeginnerRoute
+  '/onboarding/import': typeof OnboardingImportRoute
+  '/': typeof AppIndexRoute
+  '/onboarding': typeof OnboardingIndexRoute
+}
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
+  '/_app': typeof AppRouteRouteWithChildren
+  '/onboarding': typeof OnboardingRouteRouteWithChildren
+  '/login/google': typeof LoginGoogleRoute
+  '/login/mal': typeof LoginMalRoute
+  '/onboarding/advanced': typeof OnboardingAdvancedRoute
+  '/onboarding/beginner': typeof OnboardingBeginnerRoute
+  '/onboarding/import': typeof OnboardingImportRoute
+  '/_app/': typeof AppIndexRoute
+  '/onboarding/': typeof OnboardingIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: never
+  fullPaths:
+    | '/'
+    | '/onboarding'
+    | '/login/google'
+    | '/login/mal'
+    | '/onboarding/advanced'
+    | '/onboarding/beginner'
+    | '/onboarding/import'
+    | '/onboarding/'
   fileRoutesByTo: FileRoutesByTo
-  to: never
-  id: '__root__'
+  to:
+    | '/login/google'
+    | '/login/mal'
+    | '/onboarding/advanced'
+    | '/onboarding/beginner'
+    | '/onboarding/import'
+    | '/'
+    | '/onboarding'
+  id:
+    | '__root__'
+    | '/_app'
+    | '/onboarding'
+    | '/login/google'
+    | '/login/mal'
+    | '/onboarding/advanced'
+    | '/onboarding/beginner'
+    | '/onboarding/import'
+    | '/_app/'
+    | '/onboarding/'
   fileRoutesById: FileRoutesById
 }
-export interface RootRouteChildren {}
-
-declare module '@tanstack/react-router' {
-  interface FileRoutesByPath {}
+export interface RootRouteChildren {
+  AppRouteRoute: typeof AppRouteRouteWithChildren
+  OnboardingRouteRoute: typeof OnboardingRouteRouteWithChildren
+  LoginGoogleRoute: typeof LoginGoogleRoute
+  LoginMalRoute: typeof LoginMalRoute
 }
 
-const rootRouteChildren: RootRouteChildren = {}
+declare module '@tanstack/react-router' {
+  interface FileRoutesByPath {
+    '/onboarding': {
+      id: '/onboarding'
+      path: '/onboarding'
+      fullPath: '/onboarding'
+      preLoaderRoute: typeof OnboardingRouteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_app': {
+      id: '/_app'
+      path: ''
+      fullPath: '/'
+      preLoaderRoute: typeof AppRouteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/onboarding/': {
+      id: '/onboarding/'
+      path: '/'
+      fullPath: '/onboarding/'
+      preLoaderRoute: typeof OnboardingIndexRouteImport
+      parentRoute: typeof OnboardingRouteRoute
+    }
+    '/_app/': {
+      id: '/_app/'
+      path: '/'
+      fullPath: '/'
+      preLoaderRoute: typeof AppIndexRouteImport
+      parentRoute: typeof AppRouteRoute
+    }
+    '/onboarding/import': {
+      id: '/onboarding/import'
+      path: '/import'
+      fullPath: '/onboarding/import'
+      preLoaderRoute: typeof OnboardingImportRouteImport
+      parentRoute: typeof OnboardingRouteRoute
+    }
+    '/onboarding/beginner': {
+      id: '/onboarding/beginner'
+      path: '/beginner'
+      fullPath: '/onboarding/beginner'
+      preLoaderRoute: typeof OnboardingBeginnerRouteImport
+      parentRoute: typeof OnboardingRouteRoute
+    }
+    '/onboarding/advanced': {
+      id: '/onboarding/advanced'
+      path: '/advanced'
+      fullPath: '/onboarding/advanced'
+      preLoaderRoute: typeof OnboardingAdvancedRouteImport
+      parentRoute: typeof OnboardingRouteRoute
+    }
+    '/login/mal': {
+      id: '/login/mal'
+      path: '/login/mal'
+      fullPath: '/login/mal'
+      preLoaderRoute: typeof LoginMalRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/login/google': {
+      id: '/login/google'
+      path: '/login/google'
+      fullPath: '/login/google'
+      preLoaderRoute: typeof LoginGoogleRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+  }
+}
+
+interface AppRouteRouteChildren {
+  AppIndexRoute: typeof AppIndexRoute
+}
+
+const AppRouteRouteChildren: AppRouteRouteChildren = {
+  AppIndexRoute: AppIndexRoute,
+}
+
+const AppRouteRouteWithChildren = AppRouteRoute._addFileChildren(
+  AppRouteRouteChildren,
+)
+
+interface OnboardingRouteRouteChildren {
+  OnboardingAdvancedRoute: typeof OnboardingAdvancedRoute
+  OnboardingBeginnerRoute: typeof OnboardingBeginnerRoute
+  OnboardingImportRoute: typeof OnboardingImportRoute
+  OnboardingIndexRoute: typeof OnboardingIndexRoute
+}
+
+const OnboardingRouteRouteChildren: OnboardingRouteRouteChildren = {
+  OnboardingAdvancedRoute: OnboardingAdvancedRoute,
+  OnboardingBeginnerRoute: OnboardingBeginnerRoute,
+  OnboardingImportRoute: OnboardingImportRoute,
+  OnboardingIndexRoute: OnboardingIndexRoute,
+}
+
+const OnboardingRouteRouteWithChildren = OnboardingRouteRoute._addFileChildren(
+  OnboardingRouteRouteChildren,
+)
+
+const rootRouteChildren: RootRouteChildren = {
+  AppRouteRoute: AppRouteRouteWithChildren,
+  OnboardingRouteRoute: OnboardingRouteRouteWithChildren,
+  LoginGoogleRoute: LoginGoogleRoute,
+  LoginMalRoute: LoginMalRoute,
+}
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()

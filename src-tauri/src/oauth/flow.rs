@@ -222,7 +222,7 @@ async fn wait_for_callback_url_desktop<R: Runtime>(
     .map_err(|_| OAuthFlowError::Internal)?;
     let mut server_guard = DesktopOAuthServerGuard::new(port);
 
-    let redirect_uri = format!("http://127.0.0.1:{port}");
+    let redirect_uri = format!("http://127.0.0.1:{port}/oauth/{provider}/callback");
     let (auth_url, state, pkce_verifier) = build_authorize_url(provider, &redirect_uri, secrets)?;
     app.opener()
         .open_url(auth_url.as_str(), None::<&str>)
@@ -235,6 +235,7 @@ async fn wait_for_callback_url_desktop<R: Runtime>(
     server_guard.disarm();
     let _ = tauri_plugin_oauth::cancel(port);
 
+    validate_callback_redirect(&callback_url, &redirect_uri)?;
     validate_callback_state(&callback_url, &state)?;
     Ok(CallbackCapture {
         callback_url,
@@ -255,7 +256,7 @@ async fn wait_for_callback_url_mobile<R: Runtime>(
     state::register_mobile_waiter(provider, sender).map_err(|_| OAuthFlowError::Internal)?;
     let mut waiter_guard = MobileWaiterGuard::new(provider);
 
-    let redirect_uri = format!("anilog://oauth/{}/callback", provider.as_str());
+    let redirect_uri = format!("anilog://oauth/{provider}/callback");
     let (auth_url, state, pkce_verifier) = build_authorize_url(provider, &redirect_uri, secrets)?;
 
     app.opener()
@@ -268,6 +269,7 @@ async fn wait_for_callback_url_mobile<R: Runtime>(
 
     waiter_guard.disarm();
     let _ = state::clear_mobile_waiter(provider);
+    validate_callback_redirect(&callback_url, &redirect_uri)?;
     validate_callback_state(&callback_url, &state)?;
     Ok(CallbackCapture {
         callback_url,
@@ -309,6 +311,24 @@ fn validate_callback_state(callback_url: &str, expected_state: &str) -> Result<(
     } else {
         Err(OAuthFlowError::StateMismatch)
     }
+}
+
+fn validate_callback_redirect(
+    callback_url: &str,
+    redirect_uri: &str,
+) -> Result<(), OAuthFlowError> {
+    let callback = Url::parse(callback_url).map_err(|_| OAuthFlowError::InvalidCallback)?;
+    let expected = Url::parse(redirect_uri).map_err(|_| OAuthFlowError::Internal)?;
+
+    if callback.scheme() != expected.scheme()
+        || callback.host_str() != expected.host_str()
+        || callback.port_or_known_default() != expected.port_or_known_default()
+        || callback.path() != expected.path()
+    {
+        return Err(OAuthFlowError::InvalidCallback);
+    }
+
+    Ok(())
 }
 
 fn callback_error_from_url(url: &Url) -> Option<OAuthFlowError> {

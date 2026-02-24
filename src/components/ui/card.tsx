@@ -1,22 +1,93 @@
 import * as React from "react";
+import { cva, type VariantProps } from "class-variance-authority";
 
 import { cn } from "@/lib/utils";
 
+const cardVariants = cva("group/card flex flex-col", {
+    variants: {
+        variant: {
+            default:
+                "ring-foreground/10 bg-card text-card-foreground gap-6 overflow-hidden rounded-xl py-6 text-sm shadow-xs ring-1 has-[>img:first-child]:pt-0 *:[img:first-child]:rounded-t-xl *:[img:last-child]:rounded-b-xl",
+            framed: "border-4 border-foreground bg-background relative overflow-hidden",
+        },
+        size: {
+            default: "",
+            sm: "",
+        },
+    },
+    compoundVariants: [
+        {
+            variant: "default",
+            size: "sm",
+            className: "gap-4 py-4",
+        },
+    ],
+    defaultVariants: {
+        variant: "default",
+        size: "default",
+    },
+});
+
+const cardContainerVariants = cva("", {
+    variants: {
+        effect: {
+            none: "",
+            offset: "relative isolate after:absolute after:inset-0 after:translate-x-[8px] after:translate-y-[8px] after:bg-foreground after:content-[''] after:-z-10",
+        },
+    },
+    defaultVariants: {
+        effect: "none",
+    },
+});
+
 function Card({
+    children,
     className,
+    containerClassName,
+    effect = "none",
     size = "default",
+    variant = "default",
     ...props
-}: React.ComponentProps<"div"> & { size?: "default" | "sm" }) {
+}: React.ComponentProps<"div"> &
+    VariantProps<typeof cardVariants> &
+    VariantProps<typeof cardContainerVariants> & {
+        containerClassName?: string;
+    }) {
+    if (effect !== "none" || containerClassName) {
+        return (
+            <div
+                className={cn(
+                    cardContainerVariants({
+                        effect,
+                        className: containerClassName,
+                    }),
+                )}
+                {...props}
+            >
+                <div
+                    data-slot="card"
+                    data-size={size}
+                    data-variant={variant}
+                    data-effect={effect}
+                    className={cn(cardVariants({ variant, size, className }))}
+                >
+                    {children}
+                </div>
+            </div>
+        );
+    }
+
     return (
         <div
             data-slot="card"
             data-size={size}
-            className={cn(
-                "ring-foreground/10 bg-card text-card-foreground gap-6 overflow-hidden rounded-xl py-6 text-sm shadow-xs ring-1 has-[>img:first-child]:pt-0 data-[size=sm]:gap-4 data-[size=sm]:py-4 *:[img:first-child]:rounded-t-xl *:[img:last-child]:rounded-b-xl group/card flex flex-col",
-                className,
-            )}
+            data-variant={variant}
+            data-effect={effect}
+            className={cn(cardVariants({ variant, size, className }))}
             {...props}
-        />
+        >
+            {children}
+        </div>
     );
 }
 
@@ -94,6 +165,7 @@ function CardFooter({ className, ...props }: React.ComponentProps<"div">) {
 
 export {
     Card,
+    cardVariants,
     CardHeader,
     CardFooter,
     CardTitle,
