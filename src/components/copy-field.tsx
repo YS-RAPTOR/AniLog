@@ -83,7 +83,7 @@ function MultiCopyField({ label, values }: Omit<CopyFieldMultiProps, "mode">) {
                     value={values.join("\n")}
                     tone="framed-mono"
                     wrap="off"
-                    className="overflow-x-clip wrap-normal"
+                    className="field-sizing-fixed min-w-0 w-full overflow-x-auto"
                 />
                 <InputGroupAddon
                     align="inline-end"

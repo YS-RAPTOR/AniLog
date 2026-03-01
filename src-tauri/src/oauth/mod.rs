@@ -15,7 +15,11 @@ pub fn init_deeplink_listener<R: Runtime>(_app: &mut App<R>) -> tauri::Result<()
     {
         use tauri_plugin_deep_link::DeepLinkExt;
 
-        if let Some(urls) = _app.deep_link().get_current()? {
+        if let Some(urls) = _app
+            .deep_link()
+            .get_current()
+            .map_err(|error| std::io::Error::other(error.to_string()))?
+        {
             for url in urls {
                 state::dispatch_mobile_callback(url.to_string());
             }

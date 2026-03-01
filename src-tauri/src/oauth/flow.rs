@@ -1,4 +1,7 @@
-use std::{borrow::Cow, sync::mpsc, time::Duration};
+use std::{sync::mpsc, time::Duration};
+
+#[cfg(any(target_os = "windows", target_os = "linux", target_os = "macos"))]
+use std::borrow::Cow;
 
 use oauth2::{
     basic::BasicClient, reqwest::async_http_client, AuthUrl, AuthorizationCode, ClientId,

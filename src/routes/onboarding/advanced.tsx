@@ -98,7 +98,7 @@ function OnboardingAdvanced() {
         >
             <div className="grid gap-6 lg:grid-cols-12">
                 {/* Main Form Area */}
-                <div className="order-2 space-y-6 lg:order-1 lg:col-span-8">
+                <div className="order-2 min-w-0 space-y-6 lg:order-1 lg:col-span-8">
                     {/* MAL Credentials Section */}
                     <Card
                         variant="framed"
@@ -205,7 +205,7 @@ function OnboardingAdvanced() {
                     )}
                 </div>
 
-                <aside className="order-1 space-y-6 lg:order-2 lg:col-span-4">
+                <aside className="order-1 min-w-0 space-y-6 lg:order-2 lg:col-span-4">
                     {/* Setup Values */}
                     <Card variant="framed" effect="offset" className="p-5">
                         <h3 className="border-b-2 border-foreground/30 pb-2 text-lg font-black uppercase">
