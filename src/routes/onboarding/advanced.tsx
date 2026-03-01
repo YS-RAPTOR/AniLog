@@ -252,8 +252,21 @@ function OnboardingAdvanced() {
                             />
                             <CopyField
                                 label="Google Application Type"
-                                value="Desktop app"
+                                value="Web application"
                                 mode="single"
+                            />
+                            <CopyField
+                                label="Authorized redirect URIs"
+                                values={[
+                                    "http://127.0.0.1:2003/oauth/google/callback",
+                                    "http://127.0.0.1:2030/oauth/google/callback",
+                                    "http://127.0.0.1:2300/oauth/google/callback",
+                                    "http://127.0.0.1:3002/oauth/google/callback",
+                                    "http://127.0.0.1:3020/oauth/google/callback",
+                                    "http://127.0.0.1:3200/oauth/google/callback",
+                                    "anilog://oauth/google/callback",
+                                ]}
+                                mode="multi"
                             />
                             <CopyField
                                 label="Google Test User"

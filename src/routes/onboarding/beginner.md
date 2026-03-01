@@ -88,7 +88,26 @@
 8. For the `Contact information` you can put your email and click on the `Next` button.
 9. Click on the check box to `agree to the Google API Services: User Data Policy` and click on the `Continue` button and then click on the `Create` button.
 10. You will then see a button called `Create OAuth client`. Click on this button under `Metrics`.
-11. The `Application type` should be set to `Desktop app` and the `Name` can be set to "AniLog-Desktop" or any other name you prefer.
+11. The `Application type` should be set to `Web application` and the `Name` can be set to "AniLog" or any other name you prefer.
+12. For the `Authorized redirect URIs` make sure to add the following values:
+
+```json
+{
+    "type": "copy",
+    "mode": "multi",
+    "label": "Callback URLs",
+    "values": [
+        "http://127.0.0.1:2003/oauth/google/callback",
+        "http://127.0.0.1:2030/oauth/google/callback",
+        "http://127.0.0.1:2300/oauth/google/callback",
+        "http://127.0.0.1:3002/oauth/google/callback",
+        "http://127.0.0.1:3020/oauth/google/callback",
+        "http://127.0.0.1:3200/oauth/google/callback",
+        "anilog://oauth/mal/callback"
+    ]
+}
+```
+
 12. Then click on the `Create` button.
 13. On the pop-up you will see the `Client ID` and `Client secret` values. Paste these values into the fields below and continue to the next step.
 
@@ -126,7 +145,8 @@
 }
 ```
 
-20. You are now done with the Google setup.
+20. Click on the `Save` button to save the scope changes you made.
+21. You are now done with the Google setup.
 
 ## 03 | Review and Continue
 

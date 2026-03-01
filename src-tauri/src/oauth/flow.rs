@@ -179,6 +179,12 @@ fn build_authorize_url(
         request = request.add_scope(Scope::new(scope.to_string()));
     }
 
+    if provider == Provider::Google {
+        request = request
+            .add_extra_param("access_type", "offline")
+            .add_extra_param("prompt", "consent");
+    }
+
     let (auth_url, csrf) = request.url();
     Ok((auth_url, csrf.secret().to_string(), pkce_verifier))
 }

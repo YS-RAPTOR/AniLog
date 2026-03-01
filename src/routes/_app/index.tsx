@@ -1,3 +1,4 @@
+import { AuthApi } from "@/lib/auth";
 import { createFileRoute } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/_app/")({
@@ -5,5 +6,14 @@ export const Route = createFileRoute("/_app/")({
 });
 
 function RouteComponent() {
-    return <div>Hello "/_app/"!</div>;
+    const secrets = AuthApi.getAccessToken("google");
+
+    return (
+        <div>
+            Hello "/_app/"! {secrets}
+            <button onClick={() => AuthApi.removeSecrets()}>
+                Clear Secrets
+            </button>
+        </div>
+    );
 }

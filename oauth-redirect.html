@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <title>AniLog Sign-In Redirect</title>
+        <style>
+            :root {
+                color-scheme: light;
+                --bg: #f4f6fb;
+                --panel: #ffffff;
+                --text: #111827;
+                --muted: #4b5563;
+                --accent: #0f766e;
+                --accent-text: #ffffff;
+            }
+
+            * {
+                box-sizing: border-box;
+            }
+
+            body {
+                margin: 0;
+                min-height: 100vh;
+                display: grid;
+                place-items: center;
+                padding: 24px;
+                font-family: "Segoe UI", "Helvetica Neue", Helvetica, Arial, sans-serif;
+                color: var(--text);
+                background: radial-gradient(circle at top, #ffffff 0%, var(--bg) 65%);
+            }
+
+            main {
+                width: min(92vw, 560px);
+                border: 1px solid #e5e7eb;
+                border-radius: 14px;
+                background: var(--panel);
+                padding: 22px;
+                box-shadow: 0 10px 30px rgba(17, 24, 39, 0.09);
+            }
+
+            h1 {
+                margin: 0 0 10px;
+                font-size: 1.2rem;
+            }
+
+            p {
+                margin: 0 0 12px;
+                line-height: 1.45;
+            }
+
+            .muted {
+                color: var(--muted);
+                font-size: 0.95rem;
+            }
+
+            .hidden {
+                display: none;
+            }
+
+            .btn {
+                display: inline-block;
+                margin-top: 8px;
+                border-radius: 10px;
+                text-decoration: none;
+                background: var(--accent);
+                color: var(--accent-text);
+                padding: 10px 14px;
+                font-weight: 700;
+            }
+        </style>
+    </head>
+    <body>
+        <main>
+            <h1>Completing sign-in...</h1>
+            <p id="status">Trying to open AniLog now.</p>
+            <div id="manual" class="hidden">
+                <a id="openApp" class="btn" href="#">Open AniLog</a>
+            </div>
+            <p id="error" class="muted hidden"></p>
+            <p class="muted">If AniLog opens, you can close this tab.</p>
+        </main>
+
+        <script>
+            (function () {
+                const callbackBase = "anilog://oauth/google/callback";
+                const status = document.getElementById("status");
+                const manual = document.getElementById("manual");
+                const openApp = document.getElementById("openApp");
+                const errorText = document.getElementById("error");
+
+                const incoming = new URL(window.location.href);
+                const query = incoming.search || "";
+                const hash = incoming.hash || "";
+                const callbackUrl = callbackBase + query + hash;
+
+                openApp.href = callbackUrl;
+
+                const oauthError = incoming.searchParams.get("error");
+                if (oauthError) {
+                    status.textContent = "Google returned an authentication error.";
+                    errorText.textContent = "Error: " + oauthError;
+                    errorText.classList.remove("hidden");
+                    manual.classList.remove("hidden");
+                    return;
+                }
+
+                window.location.assign(callbackUrl);
+
+                window.setTimeout(function () {
+                    status.textContent = "If the app did not open, use the button below.";
+                    manual.classList.remove("hidden");
+                }, 900);
+            })();
+        </script>
+    </body>
+</html>
