@@ -103,7 +103,7 @@
         "http://127.0.0.1:3002/oauth/google/callback",
         "http://127.0.0.1:3020/oauth/google/callback",
         "http://127.0.0.1:3200/oauth/google/callback",
-        "anilog://oauth/mal/callback"
+        "https://ys-raptor.github.io/AniLog/oauth/google/callback"
     ]
 }
 ```
