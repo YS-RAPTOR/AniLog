@@ -308,10 +308,7 @@ function OnboardingAdvanced() {
                         <Button
                             variant="secondary"
                             size="icon-md"
-                            className="fixed right-5 z-50 lg:hidden size-14 border-4 border-foreground shadow-[4px_4px_0px_0px_var(--color-foreground)] hover:shadow-[6px_6px_0px_0px_var(--color-foreground)] hover:-translate-y-1 active:translate-y-0 active:shadow-none transition-all duration-200"
-                            style={{
-                                bottom: "calc(env(safe-area-inset-bottom, 0px) + 1.25rem)",
-                            }}
+                            className="fixed safe-right-5 safe-bottom-5 z-50 lg:hidden size-14 border-4 border-foreground shadow-[4px_4px_0px_0px_var(--color-foreground)] hover:shadow-[6px_6px_0px_0px_var(--color-foreground)] hover:-translate-y-1 active:translate-y-0 active:shadow-none transition-all duration-200"
                             aria-label="Open setup help"
                         />
                     }
