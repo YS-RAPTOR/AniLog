@@ -10,6 +10,12 @@ pub struct ProviderConfig {
     pub pkce_plain: bool,
 }
 
+#[cfg(any(target_os = "android", target_os = "ios"))]
+pub struct MobileRedirectConfig {
+    pub oauth_redirect_uri: String,
+    pub callback_uri: String,
+}
+
 pub fn config(provider: Provider) -> ProviderConfig {
     match provider {
         Provider::Google => ProviderConfig {
@@ -46,5 +52,25 @@ pub fn client_secret_for(provider: Provider, secrets: &OAuthSecrets) -> Option<S
     match provider {
         Provider::Google => Some(secrets.google_client_secret.clone()),
         Provider::Mal => None,
+    }
+}
+
+#[cfg(any(target_os = "windows", target_os = "linux", target_os = "macos"))]
+pub fn desktop_redirect_uri(provider: Provider, port: u16) -> String {
+    format!("http://127.0.0.1:{port}/oauth/{provider}/callback")
+}
+
+#[cfg(any(target_os = "android", target_os = "ios"))]
+pub fn mobile_redirect_config(provider: Provider) -> MobileRedirectConfig {
+    match provider {
+        Provider::Google => MobileRedirectConfig {
+            oauth_redirect_uri: "https://ys-raptor.github.io/AniLog/oauth/google/callback"
+                .to_string(),
+            callback_uri: "anilog://oauth/google/callback".to_string(),
+        },
+        Provider::Mal => MobileRedirectConfig {
+            oauth_redirect_uri: "anilog://oauth/mal/callback".to_string(),
+            callback_uri: "anilog://oauth/mal/callback".to_string(),
+        },
     }
 }

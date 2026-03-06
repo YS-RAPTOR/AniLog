@@ -26,7 +26,7 @@ const CALLBACK_TIMEOUT: Duration = Duration::from_secs(240);
 
 struct CallbackCapture {
     callback_url: String,
-    redirect_uri: String,
+    oauth_redirect_uri: String,
     pkce_verifier: PkceCodeVerifier,
 }
 
@@ -231,8 +231,9 @@ async fn wait_for_callback_url_desktop<R: Runtime>(
     .map_err(|_| OAuthFlowError::Internal)?;
     let mut server_guard = DesktopOAuthServerGuard::new(port);
 
-    let redirect_uri = format!("http://127.0.0.1:{port}/oauth/{provider}/callback");
-    let (auth_url, state, pkce_verifier) = build_authorize_url(provider, &redirect_uri, secrets)?;
+    let oauth_redirect_uri = providers::desktop_redirect_uri(provider, port);
+    let (auth_url, state, pkce_verifier) =
+        build_authorize_url(provider, &oauth_redirect_uri, secrets)?;
     app.opener()
         .open_url(auth_url.as_str(), None::<&str>)
         .map_err(|_| OAuthFlowError::Internal)?;
@@ -244,11 +245,11 @@ async fn wait_for_callback_url_desktop<R: Runtime>(
     server_guard.disarm();
     let _ = tauri_plugin_oauth::cancel(port);
 
-    validate_callback_redirect(&callback_url, &redirect_uri)?;
+    validate_callback_redirect(&callback_url, &oauth_redirect_uri)?;
     validate_callback_state(&callback_url, &state)?;
     Ok(CallbackCapture {
         callback_url,
-        redirect_uri,
+        oauth_redirect_uri,
         pkce_verifier,
     })
 }
@@ -265,8 +266,9 @@ async fn wait_for_callback_url_mobile<R: Runtime>(
     state::register_mobile_waiter(provider, sender).map_err(|_| OAuthFlowError::Internal)?;
     let mut waiter_guard = MobileWaiterGuard::new(provider);
 
-    let redirect_uri = format!("anilog://oauth/{provider}/callback");
-    let (auth_url, state, pkce_verifier) = build_authorize_url(provider, &redirect_uri, secrets)?;
+    let mobile_redirect = providers::mobile_redirect_config(provider);
+    let (auth_url, state, pkce_verifier) =
+        build_authorize_url(provider, &mobile_redirect.oauth_redirect_uri, secrets)?;
 
     app.opener()
         .open_url(auth_url.as_str(), None::<&str>)
@@ -278,11 +280,11 @@ async fn wait_for_callback_url_mobile<R: Runtime>(
 
     waiter_guard.disarm();
     let _ = state::clear_mobile_waiter(provider);
-    validate_callback_redirect(&callback_url, &redirect_uri)?;
+    validate_callback_redirect(&callback_url, &mobile_redirect.callback_uri)?;
     validate_callback_state(&callback_url, &state)?;
     Ok(CallbackCapture {
         callback_url,
-        redirect_uri,
+        oauth_redirect_uri: mobile_redirect.oauth_redirect_uri,
         pkce_verifier,
     })
 }
@@ -358,7 +360,7 @@ async fn exchange_code(
     secrets: &OAuthSecrets,
     capture: CallbackCapture,
 ) -> Result<TokenSet, OAuthFlowError> {
-    let client = build_client(provider, &capture.redirect_uri, secrets)?;
+    let client = build_client(provider, &capture.oauth_redirect_uri, secrets)?;
     let code = extract_callback_code(&capture.callback_url)?;
 
     let token = client
