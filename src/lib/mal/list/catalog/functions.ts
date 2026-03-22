@@ -125,9 +125,7 @@ const functionDefinitions: FunctionInput[] = [
     },
     {
         id: "between",
-        templates: [
-            { name: "T", type: numberOrDateType },
-        ],
+        templates: [{ name: "T", type: numberOrDateType }],
         arguments: [templateRef("T"), templateRef("T"), templateRef("T")],
         result: scalar("boolean"),
         implementation: implement((_context, [value, minimum, maximum]) => {
@@ -150,9 +148,7 @@ const functionDefinitions: FunctionInput[] = [
     },
     {
         id: "gt",
-        templates: [
-            { name: "T", type: numberOrDateType },
-        ],
+        templates: [{ name: "T", type: numberOrDateType }],
         arguments: [templateRef("T"), templateRef("T")],
         result: scalar("boolean"),
         implementation: implement((_context, [left, right]) => {
@@ -166,9 +162,7 @@ const functionDefinitions: FunctionInput[] = [
     },
     {
         id: "gte",
-        templates: [
-            { name: "T", type: numberOrDateType },
-        ],
+        templates: [{ name: "T", type: numberOrDateType }],
         arguments: [templateRef("T"), templateRef("T")],
         result: scalar("boolean"),
         implementation: implement((_context, [left, right]) => {
@@ -182,9 +176,7 @@ const functionDefinitions: FunctionInput[] = [
     },
     {
         id: "lt",
-        templates: [
-            { name: "T", type: numberOrDateType },
-        ],
+        templates: [{ name: "T", type: numberOrDateType }],
         arguments: [templateRef("T"), templateRef("T")],
         result: scalar("boolean"),
         implementation: implement((_context, [left, right]) => {
@@ -198,9 +190,7 @@ const functionDefinitions: FunctionInput[] = [
     },
     {
         id: "lte",
-        templates: [
-            { name: "T", type: numberOrDateType },
-        ],
+        templates: [{ name: "T", type: numberOrDateType }],
         arguments: [templateRef("T"), templateRef("T")],
         result: scalar("boolean"),
         implementation: implement((_context, [left, right]) => {
@@ -274,7 +264,7 @@ const functionDefinitions: FunctionInput[] = [
         templates: [
             {
                 name: "T",
-                type: union([anyValueType, nullable(anyValueType)]),
+                type: union([nullable(anyValueType)]),
             },
         ],
         arguments: [
@@ -311,8 +301,8 @@ const functionDefinitions: FunctionInput[] = [
     },
     {
         id: "is_null",
-        templates: [{ name: "T", type: anyValueType }],
-        arguments: [nullable(templateRef("T"))],
+        templates: [{ name: "T", type: nullable(anyValueType) }],
+        arguments: [templateRef("T")],
         result: scalar("boolean"),
         implementation: implement((_context, [value]) => value === null),
     },
@@ -329,7 +319,7 @@ const functionDefinitions: FunctionInput[] = [
     // String construction functions
     {
         id: "to_string",
-        templates: [{ name: "T", type: anyValueType }],
+        templates: [{ name: "T", type: anyScalarType }],
         arguments: [templateRef("T")],
         result: scalar("string"),
         implementation: implement((_context, [value]) => {
@@ -339,10 +329,6 @@ const functionDefinitions: FunctionInput[] = [
 
             if (value instanceof URL) {
                 return value.href;
-            }
-
-            if (Array.isArray(value)) {
-                return value.map((item) => String(item)).join(",");
             }
 
             return String(value);
@@ -390,10 +376,68 @@ const functionDefinitions: FunctionInput[] = [
         }),
     },
     {
+        id: "range",
+        templates: [{ name: "T", type: numberType }],
+        arguments: [templateRef("T"), templateRef("T"), templateRef("T")],
+        result: arrayOf(templateRef("T")),
+        implementation: implement((_context, [start, end, step]) => {
+            const numericStart = assertNumber(start, "range start");
+            const numericEnd = assertNumber(end, "range end");
+            const numericStep = assertNumber(step, "range step");
+
+            return Array.from(
+                {
+                    length: Math.max(
+                        Math.ceil((numericEnd - numericStart) / numericStep),
+                        0,
+                    ),
+                },
+                (_, index) => {
+                    return numericStart + index * numericStep;
+                },
+            );
+        }),
+    },
+    {
+        id: "includes_item",
+        templates: [{ name: "T", type: anyScalarType }],
+        arguments: [arrayOf(templateRef("T")), templateRef("T")],
+        result: scalar("boolean"),
+        implementation: implement((_context, [values, needle]) =>
+            assertArray(values, "includes_item values").some((value) =>
+                areEqual(value, needle),
+            ),
+        ),
+    },
+    {
+        id: "item_at",
+        templates: [{ name: "T", type: anyScalarType }],
+        arguments: [arrayOf(templateRef("T")), numberType],
+        result: nullable(templateRef("T")),
+        implementation: implement((_context, [values, index]) => {
+            const numericIndex = assertNumber(index, "item_at index");
+
+            if (!Number.isInteger(numericIndex) || numericIndex < 0) {
+                return null;
+            }
+
+            const items = assertArray(values, "item_at values");
+
+            return numericIndex >= items.length ? null : items[numericIndex];
+        }),
+    },
+    {
+        id: "length",
+        templates: [{ name: "T", type: anyScalarType }],
+        arguments: [arrayOf(templateRef("T"))],
+        result: scalar("number"),
+        implementation: implement((_context, [values]) => {
+            return assertArray(values, "length values").length;
+        }),
+    },
+    {
         id: "min",
-        templates: [
-            { name: "T", type: numberOrDateType },
-        ],
+        templates: [{ name: "T", type: numberOrDateType }],
         arguments: [arrayOf(templateRef("T"))],
         result: nullable(templateRef("T")),
         implementation: implement((_context, [values]) => {
@@ -418,9 +462,7 @@ const functionDefinitions: FunctionInput[] = [
     },
     {
         id: "max",
-        templates: [
-            { name: "T", type: numberOrDateType },
-        ],
+        templates: [{ name: "T", type: numberOrDateType }],
         arguments: [arrayOf(templateRef("T"))],
         result: nullable(templateRef("T")),
         implementation: implement((_context, [values]) => {
@@ -472,94 +514,42 @@ const functionDefinitions: FunctionInput[] = [
             return uniqueItems;
         }),
     },
+
+    // String functions
     {
-        id: "contains",
-        templates: [
-            { name: "Text", type: textType },
-            {
-                name: "Container",
-                type: union([
-                    templateRef("Text"),
-                    arrayOf(templateRef("Text")),
-                ]),
-            },
-        ],
-        arguments: [templateRef("Container"), templateRef("Text")],
+        id: "includes_text",
+        templates: [],
+        arguments: [textType, textType],
         result: scalar("boolean"),
-        implementation: implement((_context, [container, needle]) => {
-            const textNeedle = assertText(needle, "contains needle");
-
-            if (typeof container === "string") {
-                return container.includes(textNeedle);
-            }
-
-            if (Array.isArray(container)) {
-                return container.some((value) => areEqual(value, textNeedle));
-            }
-
-            throw new TypeError("contains expects a string or array container");
-        }),
+        implementation: implement((_context, [value, needle]) =>
+            assertText(value, "includes_text value").includes(
+                assertText(needle, "includes_text needle"),
+            ),
+        ),
     },
     {
-        id: "index_of",
-        templates: [
-            {
-                name: "Indexable",
-                type: union([textType, arrayOf(anyScalarType)]),
-            },
-        ],
-        arguments: [templateRef("Indexable"), numberType],
-        result: nullable(union([scalar("string"), anyScalarType])),
+        id: "char_at",
+        templates: [],
+        arguments: [textType, numberType],
+        result: nullable(scalar("string")),
         implementation: implement((_context, [value, index]) => {
-            const numericIndex = assertNumber(index, "index_of index");
+            const numericIndex = assertNumber(index, "char_at index");
 
             if (!Number.isInteger(numericIndex) || numericIndex < 0) {
                 return null;
             }
 
-            if (typeof value === "string") {
-                return numericIndex >= value.length
-                    ? null
-                    : value.charAt(numericIndex);
-            }
+            const text = assertText(value, "char_at value");
 
-            if (Array.isArray(value)) {
-                return numericIndex >= value.length
-                    ? null
-                    : value[numericIndex];
-            }
-
-            throw new TypeError(
-                "index_of expects a string-like value or array",
-            );
-        }),
-    },
-    {
-        id: "length",
-        templates: [
-            {
-                name: "Value",
-                type: union([textType, arrayOf(anyScalarType)]),
-            },
-        ],
-        arguments: [templateRef("Value")],
-        result: scalar("number"),
-        implementation: implement((_context, [value]) => {
-            if (typeof value === "string") {
-                return value.length;
-            }
-
-            if (Array.isArray(value)) {
-                return value.length;
-            }
-
-            throw new TypeError("length expects a string-like value or array");
+            return numericIndex >= text.length
+                ? null
+                : text.charAt(numericIndex);
         }),
     },
     {
         id: "starts_with",
-        templates: [{ name: "Text", type: textType }],
-        arguments: [templateRef("Text"), templateRef("Text")],
+        templates: [],
+        arguments: [textType, textType],
         result: scalar("boolean"),
         implementation: implement((_context, [value, prefix]) =>
             assertText(value, "starts_with value").startsWith(
@@ -569,8 +559,8 @@ const functionDefinitions: FunctionInput[] = [
     },
     {
         id: "ends_with",
-        templates: [{ name: "Text", type: textType }],
-        arguments: [templateRef("Text"), templateRef("Text")],
+        templates: [],
+        arguments: [textType, textType],
         result: scalar("boolean"),
         implementation: implement((_context, [value, suffix]) =>
             assertText(value, "ends_with value").endsWith(
@@ -579,9 +569,18 @@ const functionDefinitions: FunctionInput[] = [
         ),
     },
     {
+        id: "no_of_chars",
+        templates: [],
+        arguments: [textType],
+        result: scalar("number"),
+        implementation: implement((_context, [value]) => {
+            return assertText(value, "no_of_chars value").length;
+        }),
+    },
+    {
         id: "word_count",
-        templates: [{ name: "Text", type: textType }],
-        arguments: [templateRef("Text")],
+        templates: [],
+        arguments: [textType],
         result: scalar("number"),
         implementation: implement((_context, [value]) => {
             const text = assertText(value, "word_count value").trim();
@@ -867,13 +866,8 @@ const functionDefinitions: FunctionInput[] = [
     // Utility functions
     {
         id: "encode",
-        templates: [
-            {
-                name: "Encodable",
-                type: union([scalar("string"), scalar("url"), ...stringEnums]),
-            },
-        ],
-        arguments: [templateRef("Encodable")],
+        templates: [],
+        arguments: [union([scalar("string"), scalar("url"), ...stringEnums])],
         result: scalar("string"),
         implementation: implement((_context, [value]) => {
             if (value instanceof URL) {
@@ -885,9 +879,8 @@ const functionDefinitions: FunctionInput[] = [
     },
 ];
 
-export const functionCatalog = ExpressionFunction.array().parse(
-    functionDefinitions,
-);
+export const functionCatalog =
+    ExpressionFunction.array().parse(functionDefinitions);
 
 export const functionById = new Map(
     functionCatalog.map((entry) => [entry.id, entry] as const),
